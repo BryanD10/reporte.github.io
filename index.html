@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Master Fumigaciones W.D</title>
-<script src="https://cdn.jsdelivr.net/npm/docx@9.5.3/build/index.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a1a1a;font-size:15px}
@@ -129,6 +128,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
   <div class="tab" onclick="showTab('examenes')">Examenes</div>
   <div class="tab" onclick="showTab('reportes')">Reportes</div>
   <div class="tab" onclick="showTab('emergencias')">Emergencias</div>
+  <div class="tab" onclick="showTab('configuracion')">Configuracion</div>
 </div>
 
 <div class="content">
@@ -199,7 +199,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
     </div>
     <div class="form-row">
       <div class="form-group"><label>Cliente *</label><select id="s-cliente"><option value="">Seleccionar...</option></select></div>
-      <div class="form-group"><label>Tecnico responsable</label><input id="s-tecnico" type="text"></div>
+      <div class="form-group"><label>Tecnico responsable</label><select id="s-tecnico"><option value="">Seleccionar...</option></select></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Plaga tratada *</label>
@@ -209,7 +209,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
     </div>
     <div class="form-row">
       <div class="form-group"><label>Producto quimico</label>
-        <select id="s-producto"><option value="">Seleccionar</option><option>Cipermetrina 25 EC</option><option>Deltametrina</option><option>Clorpirifos</option><option>Otro</option></select></div>
+        <select id="s-producto"><option value="">Seleccionar</option></select></div>
       <div class="form-group"><label>Cantidad (ml)</label><input id="s-cantidad" type="number" min="0"></div>
     </div>
     <div class="form-row">
@@ -366,7 +366,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
 
 <!-- REPORTES -->
 <div class="section" id="tab-reportes">
-  <p style="font-size:13px;color:#666;margin-bottom:14px;line-height:1.6">Genera documentos Word (.docx) listos para imprimir con encabezado oficial de Master Fumigaciones W.D.</p>
+  <p style="font-size:13px;color:#666;margin-bottom:14px;line-height:1.6">Genera informes listos para imprimir o guardar como PDF. Se abre una nueva ventana con el reporte — presiona <b>Imprimir / Guardar PDF</b> desde ahi.</p>
   <div class="report-card">
     <div class="report-title">Informe tecnico de servicio (para entregar al cliente)</div>
     <div class="report-desc">Informe individual de un servicio. Incluye todos los campos requeridos por el Punto 19 del acta MINSAL.</div>
@@ -382,7 +382,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
     <div class="report-title">Reporte de clientes</div>
     <div class="report-desc">Listado completo de todos los clientes registrados.</div>
     <div style="display:flex;align-items:center;gap:10px">
-      <button class="btn btn-green" onclick="generarReporteClientes()">Generar documento Word</button>
+      <button class="btn btn-green" onclick="generarReporteClientes()">Generar e imprimir / PDF</button>
       <span id="gen-c" style="font-size:12px;color:#666"></span>
     </div>
   </div>
@@ -395,7 +395,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
         <select id="rep-est"><option value="">Todos</option><option>Completado</option><option>Pendiente</option><option>En seguimiento</option></select></div>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-      <button class="btn btn-green" onclick="generarReporteBitacora()">Generar documento Word</button>
+      <button class="btn btn-green" onclick="generarReporteBitacora()">Generar e imprimir / PDF</button>
       <span id="gen-b" style="font-size:12px;color:#666"></span>
     </div>
   </div>
@@ -403,7 +403,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
     <div class="report-title">Reporte de capacitaciones y examenes medicos</div>
     <div class="report-desc">Historial del personal. Para adjuntar en inspecciones MINSAL (Puntos 4 y 5).</div>
     <div style="display:flex;align-items:center;gap:10px">
-      <button class="btn btn-green" onclick="generarReportePersonal()">Generar documento Word</button>
+      <button class="btn btn-green" onclick="generarReportePersonal()">Generar e imprimir / PDF</button>
       <span id="gen-per" style="font-size:12px;color:#666"></span>
     </div>
   </div>
@@ -411,7 +411,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
     <div class="report-title">Reporte de mantenimiento de equipos</div>
     <div class="report-desc">Bitacora completa de lavado y mantenimiento (Punto 18 del acta MINSAL).</div>
     <div style="display:flex;align-items:center;gap:10px">
-      <button class="btn btn-green" onclick="generarReporteEquipos()">Generar documento Word</button>
+      <button class="btn btn-green" onclick="generarReporteEquipos()">Generar e imprimir / PDF</button>
       <span id="gen-eq" style="font-size:12px;color:#666"></span>
     </div>
   </div>
@@ -422,7 +422,7 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
       <div class="form-group"><label>Mes del reporte</label><select id="rep-mes-gral"><option value="">Todo el historial</option></select></div>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-      <button class="btn btn-green" onclick="generarReporteCompleto()">Generar reporte completo</button>
+      <button class="btn btn-green" onclick="generarReporteCompleto()">Generar e imprimir / PDF</button>
       <span id="gen-gral" style="font-size:12px;color:#666"></span>
     </div>
   </div>
@@ -460,10 +460,35 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
   </div>
 </div>
 
+<!-- CONFIGURACION -->
+<div class="section" id="tab-configuracion">
+  <div class="card">
+    <div class="card-title">Tecnicos registrados</div>
+    <div class="form-row">
+      <div class="form-group"><label>Nombre del tecnico *</label><input id="cfg-tec-nombre" type="text" placeholder="Nombre completo"></div>
+      <div class="form-group"><label>Telefono</label><input id="cfg-tec-tel" type="tel" placeholder="7000-0000"></div>
+    </div>
+    <button class="btn btn-blue" onclick="guardarTecnico()">Agregar tecnico</button>
+    <div class="msg" id="msg-tec"></div>
+    <hr class="div" style="margin-top:12px">
+    <div id="lista-tecnicos"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Productos quimicos registrados</div>
+    <div class="form-row">
+      <div class="form-group"><label>Nombre del producto *</label><input id="cfg-prod-nombre" type="text" placeholder="Ej: Cipermetrina 25 EC"></div>
+    </div>
+    <button class="btn btn-blue" onclick="guardarProducto()">Agregar producto</button>
+    <div class="msg" id="msg-prod"></div>
+    <hr class="div" style="margin-top:12px">
+    <div id="lista-productos"></div>
+  </div>
+</div>
+
 </div><!-- /content -->
 
 <script>
-var DB={clientes:[],servicios:[],equipos:[],capacitaciones:[],examenes:[]};
+var DB={clientes:[],servicios:[],equipos:[],capacitaciones:[],examenes:[],tecnicos:[],productos:[]};
 var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 // Archivos temporales en memoria (no persisten entre sesiones por limitacion del navegador)
 var archivos={srv:null, eq:[], ex:[]};
@@ -825,58 +850,98 @@ function renderIncidentes(){
     inc.map(function(s){var c=cli(s.clienteId);return'<div class="row-item"><div><div class="iname">'+s.fecha+' &bull; '+(c?c.nombre:'—')+'</div><div class="isub">'+s.incidente+'</div>'+(s.obs?'<div class="isub">'+s.obs+'</div>':'')+'</div><span class="badge b-danger">Incidente</span></div>';}).join('');
 }
 
-// ===== REPORTES WORD =====
-function setGen(id,txt){document.getElementById(id).textContent=txt;}
-function makeDoc(secciones,titulo){
-  var D=docx;
-  var brd={style:D.BorderStyle.SINGLE,size:1,color:'CCCCCC'};var brds={top:brd,bottom:brd,left:brd,right:brd};
-  function ch(txt,w,head){return new D.TableCell({borders:brds,width:{size:w,type:D.WidthType.DXA},shading:{fill:head?'1a5c9e':'FFFFFF',type:D.ShadingType.CLEAR},margins:{top:80,bottom:80,left:110,right:110},children:[new D.Paragraph({children:[new D.TextRun({text:String(txt||''),size:18,font:'Arial',bold:!!head,color:head?'FFFFFF':'333333'})]})]});}
-  function fila(cc,head){return new D.TableRow({children:cc.map(function(c){return ch(c,Math.floor(9000/cc.length),head);})});}
-  var cont=[];
-  cont.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'MASTER FUMIGACIONES W. D.',bold:true,size:40,font:'Arial',color:'1a5c9e'})]}));
-  cont.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:titulo||'Registro Oficial',size:26,font:'Arial',color:'555555'})]}));
-  cont.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'Generado: '+new Date().toLocaleDateString('es-SV',{year:'numeric',month:'long',day:'numeric'}),size:20,font:'Arial',color:'888888'})]}));
-  cont.push(new D.Paragraph({border:{bottom:{style:D.BorderStyle.SINGLE,size:8,color:'1a5c9e',space:1}},children:[new D.TextRun({text:' '})]}));
-  cont.push(new D.Paragraph({children:[new D.TextRun({text:''})]}));
-  secciones.forEach(function(sec){
-    cont.push(new D.Paragraph({children:[new D.TextRun({text:sec.titulo,bold:true,size:28,font:'Arial',color:'1a5c9e'})],spacing:{before:300,after:100}}));
-    if(sec.sub)cont.push(new D.Paragraph({children:[new D.TextRun({text:sec.sub,size:20,font:'Arial',color:'666666'})],spacing:{after:120}}));
-    if(sec.filas&&sec.filas.length){cont.push(new D.Table({width:{size:9000,type:D.WidthType.DXA},columnWidths:Array(sec.enc.length).fill(Math.floor(9000/sec.enc.length)),rows:[fila(sec.enc,true)].concat(sec.filas.map(function(f){return fila(f,false);}))}))}
-    else{cont.push(new D.Paragraph({children:[new D.TextRun({text:'Sin registros.',size:20,font:'Arial',color:'999999',italics:true})]}));}
-    cont.push(new D.Paragraph({children:[new D.TextRun({text:''})]}));
-  });
-  cont.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,border:{top:{style:D.BorderStyle.SINGLE,size:4,color:'DDDDDD',space:1}},children:[new D.TextRun({text:'Master Fumigaciones W.D  |  Tel: 7162-6850  |  Emergencias: 132 / 911  |  Soyapango, El Salvador',size:16,font:'Arial',color:'888888'})]}));
-  var doc=new D.Document({styles:{default:{document:{run:{font:'Arial',size:22}}}},sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:1260,right:1260,bottom:1260,left:1440}}},children:cont}]});
-  return D.Packer.toBlob(doc);
+// ===== CONFIGURACION: TECNICOS =====
+function cargarDefectosConfig(){
+  if(!DB.productos||!DB.productos.length){DB.productos=[{id:'p1',nombre:'Cipermetrina 25 EC'},{id:'p2',nombre:'Deltametrina'},{id:'p3',nombre:'Clorpirifos'}];guardar();}
+  if(!DB.tecnicos)DB.tecnicos=[];
 }
-function dl(blob,nombre){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nombre;a.click();}
+function guardarTecnico(){
+  var nom=document.getElementById('cfg-tec-nombre').value.trim();
+  if(!nom){showMsg('msg-tec','Ingrese el nombre del tecnico.','err');return;}
+  DB.tecnicos.push({id:'tec'+Date.now(),nombre:nom,tel:document.getElementById('cfg-tec-tel').value.trim()});
+  guardar();document.getElementById('cfg-tec-nombre').value='';document.getElementById('cfg-tec-tel').value='';
+  showMsg('msg-tec','Tecnico agregado.','ok');renderConfigTecnicos();poblarSelectTecnico();
+}
+function eliminarTecnico(id){if(!confirm('Eliminar tecnico?'))return;DB.tecnicos=DB.tecnicos.filter(function(t){return t.id!==id;});guardar();renderConfigTecnicos();poblarSelectTecnico();}
+function renderConfigTecnicos(){
+  var d=document.getElementById('lista-tecnicos');
+  if(!DB.tecnicos.length){d.innerHTML='<div class="empty">Sin tecnicos registrados</div>';return;}
+  d.innerHTML=DB.tecnicos.map(function(t){return'<div class="row-item"><div><div class="iname">'+t.nombre+'</div>'+(t.tel?'<div class="isub">'+t.tel+'</div>':'')+'</div><button class="btn btn-red btn-sm" onclick="eliminarTecnico(\''+t.id+'\')">Eliminar</button></div>';}).join('');
+}
+function poblarSelectTecnico(){
+  var s=document.getElementById('s-tecnico');if(!s)return;
+  var v=s.value;s.innerHTML='<option value="">Seleccionar...</option>';
+  DB.tecnicos.forEach(function(t){var o=document.createElement('option');o.value=t.nombre;o.textContent=t.nombre;s.appendChild(o);});
+  s.value=v;
+}
+
+// ===== CONFIGURACION: PRODUCTOS =====
+function guardarProducto(){
+  var nom=document.getElementById('cfg-prod-nombre').value.trim();
+  if(!nom){showMsg('msg-prod','Ingrese el nombre del producto.','err');return;}
+  DB.productos.push({id:'prod'+Date.now(),nombre:nom});
+  guardar();document.getElementById('cfg-prod-nombre').value='';
+  showMsg('msg-prod','Producto agregado.','ok');renderConfigProductos();poblarSelectProducto();
+}
+function eliminarProducto(id){if(!confirm('Eliminar producto?'))return;DB.productos=DB.productos.filter(function(p){return p.id!==id;});guardar();renderConfigProductos();poblarSelectProducto();}
+function renderConfigProductos(){
+  var d=document.getElementById('lista-productos');
+  if(!DB.productos.length){d.innerHTML='<div class="empty">Sin productos registrados</div>';return;}
+  d.innerHTML=DB.productos.map(function(p){return'<div class="row-item"><div class="iname">'+p.nombre+'</div><button class="btn btn-red btn-sm" onclick="eliminarProducto(\''+p.id+'\')">Eliminar</button></div>';}).join('');
+}
+function poblarSelectProducto(){
+  var s=document.getElementById('s-producto');if(!s)return;
+  var v=s.value;s.innerHTML='<option value="">Seleccionar</option>';
+  DB.productos.forEach(function(p){var o=document.createElement('option');o.value=p.nombre;o.textContent=p.nombre;s.appendChild(o);});
+  s.value=v;
+}
+
+// ===== REPORTES IMPRIMIBLES =====
+function setGen(id,txt){document.getElementById(id).textContent=txt;}
+var estiloTabla='<style>body{font-family:Arial,sans-serif;font-size:13px;color:#111;margin:30px}h1{color:#1a5c9e;font-size:20px;margin-bottom:2px}h2{color:#1a5c9e;font-size:15px;margin:20px 0 6px}p.sub{color:#666;font-size:12px;margin:0 0 10px}table{width:100%;border-collapse:collapse;margin-bottom:14px}th{background:#1a5c9e;color:#fff;padding:6px 8px;text-align:left;font-size:12px}td{padding:5px 8px;border-bottom:1px solid #ddd;font-size:12px;vertical-align:top}.footer{margin-top:30px;border-top:1px solid #ccc;padding-top:8px;color:#888;font-size:11px;text-align:center}.btn-print{background:#1a5c9e;color:#fff;border:none;padding:10px 22px;font-size:14px;border-radius:6px;cursor:pointer;margin-bottom:18px}@media print{.btn-print{display:none}}</style>';
+function htmlDoc(titulo,secciones){
+  var fecha=new Date().toLocaleDateString('es-SV',{year:'numeric',month:'long',day:'numeric'});
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+titulo+'</title>'+estiloTabla+'</head><body>';
+  html+='<button class="btn-print" onclick="window.print()">&#128438; Imprimir / Guardar PDF</button>';
+  html+='<h1>MASTER FUMIGACIONES W. D.</h1><p class="sub">'+titulo+' &nbsp;&mdash;&nbsp; Generado: '+fecha+'</p><hr style="border:none;border-top:2px solid #1a5c9e;margin-bottom:18px">';
+  secciones.forEach(function(sec){
+    html+='<h2>'+sec.titulo+'</h2>';
+    if(sec.sub)html+='<p class="sub">'+sec.sub+'</p>';
+    if(sec.filas&&sec.filas.length){
+      html+='<table><thead><tr>'+sec.enc.map(function(e){return'<th>'+e+'</th>';}).join('')+'</tr></thead><tbody>';
+      sec.filas.forEach(function(f,i){html+='<tr style="background:'+(i%2===0?'#f9f9f9':'#fff')+'">'+f.map(function(c){return'<td>'+c+'</td>';}).join('')+'</tr>';});
+      html+='</tbody></table>';
+    } else {html+='<p style="color:#999;font-style:italic">Sin registros.</p>';}
+  });
+  html+='<div class="footer">Master Fumigaciones W.D &nbsp;|&nbsp; Tel: 7162-6850 &nbsp;|&nbsp; Emergencias: 132 / 911 &nbsp;|&nbsp; Soyapango, El Salvador</div></body></html>';
+  return html;
+}
+function abrirVentana(html){var w=window.open('','_blank');if(!w){alert('Active ventanas emergentes para generar reportes.');return;}w.document.write(html);w.document.close();}
 
 function generarInformeTecnico(){
   var sid=document.getElementById('rep-srv').value;if(!sid){setGen('gen-informe','Seleccione un servicio.');return;}
   setGen('gen-informe','Generando...');
   var s=DB.servicios.find(function(x){return x.id===sid;});var c=cli(s.clienteId);
-  makeDoc([{titulo:'Informe Tecnico de Servicio',sub:'Documento para entrega al cliente — conservar copia en archivo del establecimiento',enc:['Campo','Detalle'],filas:[
+  var html=htmlDoc('Informe Tecnico de Servicio',[{titulo:'Informe Tecnico de Servicio',sub:'Documento para entrega al cliente — conservar copia en archivo del establecimiento',enc:['Campo','Detalle'],filas:[
     ['Fecha del servicio',s.fecha||'—'],['Hora',s.hora||'—'],
     ['Nombre del cliente',c?c.nombre:'—'],['Direccion del establecimiento',c?c.dir||'—':'—'],
     ['Tipo de establecimiento',c?c.tipo||'—':'—'],['Telefono del cliente',c?c.tel||'—':'—'],
     ['Tipo de plaga tratada',s.plaga||'—'],['Tipo de servicio',s.tipo||'—'],
     ['Areas tratadas',s.areas||'—'],['Metodo de aplicacion',s.metodo||'—'],
-    ['Producto quimico utilizado',s.producto||'—'],['Cantidad aplicada',(s.cantidad||'—')+'ml'],
+    ['Producto quimico utilizado',s.producto||'—'],['Cantidad aplicada',(s.cantidad||'—')+' ml'],
     ['Tecnico responsable',s.tecnico||'—'],['EPP utilizado',s.epp||'—'],
     ['Recomendaciones al cliente',s.recom||'—'],['Fecha proxima visita',s.proxima||'—'],
     ['Estado del servicio',s.estado||'—'],['Costo del servicio',s.costo?'$'+parseFloat(s.costo).toFixed(2):'—'],
     ['Hoja de visita adjunta',s.hojaVisita||'No'],
     ['Incidente de seguridad',s.incidente||'No'],['Observaciones',s.obs||'—'],
-    ['Firma del tecnico','                                        '],
-    ['Firma de recepcion del cliente','                                        '],
-  ]}],'Informe Tecnico de Servicio')
-    .then(function(b){dl(b,'informe_'+s.fecha+'_'+(c?c.nombre.replace(/ /g,'_'):'')+'.docx');setGen('gen-informe','Listo. Revise Descargas.');})
-    .catch(function(e){setGen('gen-informe','Error: '+e.message);});
+    ['Firma del tecnico','&nbsp;'.repeat(60)],['Firma de recepcion del cliente','&nbsp;'.repeat(60)],
+  ]}]);
+  abrirVentana(html);setGen('gen-informe','Listo. Imprima desde la ventana nueva.');
 }
 function generarReporteClientes(){
   setGen('gen-c','Generando...');
-  makeDoc([{titulo:'Listado de Clientes',sub:'Total: '+DB.clientes.length+' clientes',enc:['Nombre','Telefono','Correo','Tipo','Direccion','Frecuencia'],filas:DB.clientes.map(function(c){return[c.nombre,c.tel,c.email||'—',c.tipo||'—',c.dir||'—',c.freq||'—'];})}],'Clientes Registrados')
-    .then(function(b){dl(b,'clientes_master.docx');setGen('gen-c','Listo.');}).catch(function(e){setGen('gen-c','Error: '+e.message);});
+  var html=htmlDoc('Listado de Clientes',[{titulo:'Listado de Clientes',sub:'Total: '+DB.clientes.length+' clientes',enc:['Nombre','Telefono','Correo','Tipo','Direccion','Frecuencia'],filas:DB.clientes.map(function(c){return[c.nombre,c.tel,c.email||'—',c.tipo||'—',c.dir||'—',c.freq||'—'];})}]);
+  abrirVentana(html);setGen('gen-c','Listo.');
 }
 function generarReporteBitacora(){
   setGen('gen-b','Generando...');
@@ -885,21 +950,21 @@ function generarReporteBitacora(){
   if(mes)sv=sv.filter(function(s){return s.fecha&&s.fecha.startsWith(mes);});
   if(est)sv=sv.filter(function(s){return s.estado===est;});
   var tot=sv.reduce(function(a,s){return a+(parseFloat(s.costo)||0);},0);
-  makeDoc([{titulo:'Bitacora de Servicios',sub:'Periodo: '+(mes?nomMes(mes):'Completo')+(est?' | '+est:'')+' | '+sv.length+' servicios | $'+tot.toFixed(2),enc:['Fecha','Cliente','Plaga','Tipo','Producto','Areas','Tecnico','Estado','Costo','Hoja visita','Incidente'],filas:sv.map(function(s){var c=cli(s.clienteId);return[s.fecha,c?c.nombre:'—',s.plaga||'—',s.tipo||'—',s.producto||'—',s.areas||'—',s.tecnico||'—',s.estado,s.costo?'$'+parseFloat(s.costo).toFixed(2):'—',s.hojaVisita||'No',s.incidente||'No'];})}],'Bitacora de Servicios')
-    .then(function(b){dl(b,'bitacora'+(mes?'_'+mes:'')+'.docx');setGen('gen-b','Listo.');}).catch(function(e){setGen('gen-b','Error: '+e.message);});
+  var html=htmlDoc('Bitacora de Servicios',[{titulo:'Bitacora de Servicios',sub:'Periodo: '+(mes?nomMes(mes):'Completo')+(est?' | '+est:'')+' | '+sv.length+' servicios | $'+tot.toFixed(2),enc:['Fecha','Cliente','Plaga','Tipo','Producto','Areas','Tecnico','Estado','Costo','Hoja visita','Incidente'],filas:sv.map(function(s){var c=cli(s.clienteId);return[s.fecha,c?c.nombre:'—',s.plaga||'—',s.tipo||'—',s.producto||'—',s.areas||'—',s.tecnico||'—',s.estado,s.costo?'$'+parseFloat(s.costo).toFixed(2):'—',s.hojaVisita||'No',s.incidente||'No'];})}]);
+  abrirVentana(html);setGen('gen-b','Listo.');
 }
 function generarReportePersonal(){
   setGen('gen-per','Generando...');
-  makeDoc([
+  var html=htmlDoc('Capacitaciones y Examenes Medicos',[
     {titulo:'Capacitaciones del Personal',sub:DB.capacitaciones.length+' registros — Punto 4 Acta MINSAL',enc:['Empleado','Fecha','Tema','Institucion','Atestado'],filas:DB.capacitaciones.map(function(c){return[c.empleado,c.fecha,c.tema,c.institucion||'—',c.atestado||'—'];})},
     {titulo:'Examenes Medicos',sub:DB.examenes.length+' registros — Punto 5 Acta MINSAL (min. 2 al ano por trabajador)',enc:['Empleado','Fecha','Tipo','Resultado','Proximo','Archivos'],filas:DB.examenes.map(function(e){return[e.empleado,e.fecha,e.tipo,e.resultado,e.proxima||'—',(e.archivos&&e.archivos.length?e.archivos.length+' adj.':'No')];})}
-  ],'Capacitaciones y Examenes Medicos')
-    .then(function(b){dl(b,'personal_capacitaciones_examenes.docx');setGen('gen-per','Listo.');}).catch(function(e){setGen('gen-per','Error: '+e.message);});
+  ]);
+  abrirVentana(html);setGen('gen-per','Listo.');
 }
 function generarReporteEquipos(){
   setGen('gen-eq','Generando...');
-  makeDoc([{titulo:'Bitacora de Mantenimiento de Equipos',sub:DB.equipos.length+' registros — Punto 18 Acta MINSAL',enc:['Fecha','Responsable','Tipo','Equipos lavados','Piezas/Mantenimiento','Proxima revision','Archivos adjuntos'],filas:DB.equipos.map(function(e){return[e.fecha,e.resp||'—',e.tipo||'—',e.equipo||'—',e.piezas||'—',e.proxima||'—',(e.archivos&&e.archivos.length?e.archivos.join(', '):'No')];})}],'Mantenimiento de Equipos')
-    .then(function(b){dl(b,'equipos_mantenimiento.docx');setGen('gen-eq','Listo.');}).catch(function(e){setGen('gen-eq','Error: '+e.message);});
+  var html=htmlDoc('Mantenimiento de Equipos',[{titulo:'Bitacora de Mantenimiento de Equipos',sub:DB.equipos.length+' registros — Punto 18 Acta MINSAL',enc:['Fecha','Responsable','Tipo','Equipos lavados','Piezas/Mantenimiento','Proxima revision','Archivos adjuntos'],filas:DB.equipos.map(function(e){return[e.fecha,e.resp||'—',e.tipo||'—',e.equipo||'—',e.piezas||'—',e.proxima||'—',(e.archivos&&e.archivos.length?e.archivos.join(', '):'No')];})}]);
+  abrirVentana(html);setGen('gen-eq','Listo.');
 }
 function generarReporteCompleto(){
   setGen('gen-gral','Generando...');
@@ -908,21 +973,26 @@ function generarReporteCompleto(){
   if(mes)sv=sv.filter(function(s){return s.fecha&&s.fecha.startsWith(mes);});
   var tot=sv.reduce(function(a,s){return a+(parseFloat(s.costo)||0);},0);
   var inc=sv.filter(function(s){return s.incidente&&s.incidente!=='No';}).length;
-  makeDoc([
+  var html=htmlDoc('Reporte General — Master Fumigaciones W.D',[
     {titulo:'Resumen Ejecutivo',sub:'Periodo: '+(mes?nomMes(mes):'Historial completo'),enc:['Indicador','Valor'],filas:[['Total servicios',String(sv.length)],['Ingresos del periodo','$'+tot.toFixed(2)],['Clientes registrados',String(DB.clientes.length)],['Capacitaciones',String(DB.capacitaciones.length)],['Examenes medicos',String(DB.examenes.length)],['Registros de mantenimiento',String(DB.equipos.length)],['Incidentes de seguridad',String(inc)]]},
     {titulo:'Clientes',enc:['Nombre','Telefono','Correo','Tipo','Direccion','Frecuencia'],filas:DB.clientes.map(function(c){return[c.nombre,c.tel,c.email||'—',c.tipo||'—',c.dir||'—',c.freq||'—'];})},
     {titulo:'Bitacora de Servicios',sub:'Periodo: '+(mes?nomMes(mes):'Completo'),enc:['Fecha','Cliente','Plaga','Producto','Areas','Tecnico','Estado','Costo'],filas:sv.map(function(s){var c=cli(s.clienteId);return[s.fecha,c?c.nombre:'—',s.plaga||'—',s.producto||'—',s.areas||'—',s.tecnico||'—',s.estado,s.costo?'$'+parseFloat(s.costo).toFixed(2):'—'];})},
     {titulo:'Capacitaciones y Examenes',enc:['Tipo','Empleado','Fecha','Detalle','Resultado/Atestado'],filas:[...DB.capacitaciones.map(function(c){return['Capacitacion',c.empleado,c.fecha,c.tema,c.atestado||'—'];}),...DB.examenes.map(function(e){return['Examen medico',e.empleado,e.fecha,e.tipo,e.resultado];})]},
     {titulo:'Mantenimiento de Equipos',enc:['Fecha','Responsable','Tipo','Equipos','Proxima'],filas:DB.equipos.map(function(e){return[e.fecha,e.resp||'—',e.tipo||'—',e.equipo||'—',e.proxima||'—'];})},
     {titulo:'Incidentes de Seguridad',enc:['Fecha','Cliente','Tipo de incidente','Observaciones'],filas:sv.filter(function(s){return s.incidente&&s.incidente!=='No';}).map(function(s){var c=cli(s.clienteId);return[s.fecha,c?c.nombre:'—',s.incidente,s.obs||'—'];})}
-  ],'Reporte General — Master Fumigaciones W.D')
-    .then(function(b){dl(b,'reporte_completo'+(mes?'_'+mes:'')+'.docx');setGen('gen-gral','Listo.');}).catch(function(e){setGen('gen-gral','Error: '+e.message);});
+  ]);
+  abrirVentana(html);setGen('gen-gral','Listo.');
 }
 
 // INICIO
 cargar();
+cargarDefectosConfig();
 document.getElementById('fecha-hoy').textContent=new Date().toLocaleDateString('es-SV',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 renderDashboard();
+poblarSelectTecnico();
+poblarSelectProducto();
+renderConfigTecnicos();
+renderConfigProductos();
 (function(){
   var items=['Gabacha','Botas','Guantes','Bomba fumigadora','Boquillas','Gafas de proteccion','Mascarilla'];
   var ch=document.getElementById('checklist-eq');
