@@ -167,18 +167,21 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
   <div class="card">
     <div class="card-title" id="titulo-form-c">Nuevo cliente</div>
     <div class="form-row">
-      <div class="form-group"><label>Nombre completo *</label><input id="c-nombre" type="text"></div>
+      <div class="form-group"><label>Nombre del cliente / empresa *</label><input id="c-nombre" type="text" placeholder="Ej: Supermercados La Union"></div>
+      <div class="form-group"><label>Sucursal / identificador <span style="color:#888;font-weight:400">(opcional)</span></label><input id="c-sucursal" type="text" placeholder="Ej: Local Centro, Sucursal 2..."></div>
+    </div>
+    <div class="form-row">
       <div class="form-group"><label>Telefono *</label><input id="c-tel" type="tel"></div>
-    </div>
-    <div class="form-row">
       <div class="form-group"><label>Correo electronico <span style="color:#1a5c9e">(para recordatorios)</span></label><input id="c-email" type="email" placeholder="cliente@correo.com"></div>
-      <div class="form-group"><label>Frecuencia de servicio</label>
-        <select id="c-freq"><option value="">Seleccionar</option><option>Semanal</option><option>Quincenal</option><option>Mensual</option><option>Bimestral</option><option>Eventual</option></select></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Direccion</label><input id="c-dir" type="text"></div>
+      <div class="form-group"><label>Direccion de esta sucursal</label><input id="c-dir" type="text" placeholder="Direccion especifica del local"></div>
       <div class="form-group"><label>Tipo de inmueble</label>
         <select id="c-tipo"><option value="">Seleccionar</option><option>Residencial</option><option>Comercial</option><option>Industrial</option><option>Bodega</option><option>Restaurante</option><option>Oficina</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Frecuencia de servicio</label>
+        <select id="c-freq"><option value="">Seleccionar</option><option>Semanal</option><option>Quincenal</option><option>Mensual</option><option>Bimestral</option><option>Eventual</option></select></div>
     </div>
     <div class="form-group" style="margin-bottom:10px"><label>Observaciones</label><textarea id="c-obs" placeholder="Mascotas, horarios, acceso especial..."></textarea></div>
     <div style="display:flex;gap:8px">
@@ -199,7 +202,13 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
     </div>
     <div class="form-row">
       <div class="form-group"><label>Cliente *</label><select id="s-cliente"><option value="">Seleccionar...</option></select></div>
-      <div class="form-group"><label>Tecnico responsable</label><select id="s-tecnico"><option value="">Seleccionar...</option></select></div>
+      <div class="form-group"><label>Tecnicos responsables</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <select id="s-tecnico" style="flex:1;min-width:130px"><option value="">Seleccionar...</option></select>
+          <button type="button" class="btn btn-gray btn-sm" onclick="agregarTecnicoServicio()" style="white-space:nowrap">+ Agregar</button>
+        </div>
+        <div id="tecnicos-seleccionados" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px"></div>
+      </div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Plaga tratada *</label>
@@ -460,6 +469,12 @@ hr.div{border:none;border-top:1px solid #edf0f3;margin:10px 0}
   </div>
 </div>
 
+<!-- PERFIL CLIENTE -->
+<div class="section" id="tab-perfil-cliente">
+  <button class="btn btn-gray" onclick="showTab('clientes')" style="margin-bottom:12px">← Volver a clientes</button>
+  <div id="perfil-cliente-contenido"></div>
+</div>
+
 <!-- CONFIGURACION -->
 <div class="section" id="tab-configuracion">
   <div class="card">
@@ -597,17 +612,18 @@ function showTab(t){
   document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});
   document.getElementById('tab-'+t).classList.add('active');
-  var orden=['dashboard','clientes','servicio','bitacora','equipos','capacitaciones','examenes','reportes','emergencias'];
+  var orden=['dashboard','clientes','servicio','bitacora','equipos','capacitaciones','examenes','reportes','emergencias','configuracion'];
   var idx=orden.indexOf(t);if(idx>=0)document.querySelectorAll('.tab')[idx].classList.add('active');
   if(t==='clientes')renderClientes();
   if(t==='bitacora'){poblarFiltroMes();renderBitacora();}
-  if(t==='servicio'){poblarSelectClientes();document.getElementById('s-fecha').value=hoy();document.getElementById('s-hora').value=ahora();}
+  if(t==='servicio'){poblarSelectClientes();document.getElementById('s-fecha').value=hoy();document.getElementById('s-hora').value=ahora();limpiarTecnicosServicio();}
   if(t==='equipos'){renderEquipos();document.getElementById('eq-fecha').value=hoy();}
   if(t==='capacitaciones')renderCapacitaciones();
   if(t==='examenes')renderExamenes();
   if(t==='emergencias')renderIncidentes();
   if(t==='reportes'){poblarSelectMeses();poblarSelectServicios();}
   if(t==='dashboard')renderDashboard();
+  if(t==='configuracion'){renderConfigTecnicos();renderConfigProductos();}
 }
 
 function poblarFiltroMes(){
@@ -625,7 +641,8 @@ function poblarSelectMeses(){
 }
 function poblarSelectClientes(){
   var sel=document.getElementById('s-cliente');sel.innerHTML='<option value="">Seleccionar...</option>';
-  DB.clientes.forEach(function(c){var o=document.createElement('option');o.value=c.id;o.textContent=c.nombre+(c.tipo?' ('+c.tipo+')':'');sel.appendChild(o);});
+  var ordenados=[...DB.clientes].sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
+  ordenados.forEach(function(c){var o=document.createElement('option');o.value=c.id;o.textContent=c.nombre+(c.sucursal?' — '+c.sucursal:'')+(c.tipo?' ('+c.tipo+')':'');sel.appendChild(o);});
 }
 function poblarSelectServicios(){
   var sel=document.getElementById('rep-srv');sel.innerHTML='<option value="">Seleccionar...</option>';
@@ -682,53 +699,141 @@ function abrirCliente(){limpiarCliente();document.getElementById('titulo-form-c'
 function renderClientes(){
   var q=(document.getElementById('buscar-c').value||'').toLowerCase();
   var lista=document.getElementById('lista-clientes');
-  var f=DB.clientes.filter(function(c){return(c.nombre+c.tel+c.dir).toLowerCase().includes(q);});
+  var f=DB.clientes.filter(function(c){return(c.nombre+(c.sucursal||'')+c.tel+(c.dir||'')).toLowerCase().includes(q);});
   if(!f.length){lista.innerHTML='<div class="empty">Sin clientes</div>';return;}
-  lista.innerHTML=f.map(function(c){
-    var sv=DB.servicios.filter(function(s){return s.clienteId===c.id;}).length;
-    var ul=DB.servicios.filter(function(s){return s.clienteId===c.id;}).sort(function(a,b){return b.fecha.localeCompare(a.fecha);})[0];
-    var proxSrv=DB.servicios.filter(function(s){return s.clienteId===c.id&&s.proxima&&s.proxima>=hoy();}).sort(function(a,b){return a.proxima.localeCompare(b.proxima);})[0];
-    return'<div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
-      '<div><div class="iname">'+c.nombre+'</div>'+
-      '<div class="isub">'+(c.tipo||'')+' &bull; '+(c.dir||'')+'</div>'+
-      '<div class="isub">'+c.tel+(c.freq?' &bull; '+c.freq:'')+'</div>'+
-      (c.email?'<div class="isub" style="color:#1a5c9e">'+c.email+'</div>':'')+
-      (c.obs?'<div class="isub" style="font-style:italic">'+c.obs+'</div>':'')+'</div>'+
-      '<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+
-      '<span style="font-size:12px;color:#888">'+sv+' servicio'+(sv!==1?'s':'')+'</span>'+
-      (ul?'<span style="font-size:11px;color:#888">Ultimo: '+ul.fecha+'</span>':'')+
-      (proxSrv&&c.email?'<button class="btn btn-teal btn-sm" onclick="abrirModalCorreo(\''+c.id+'\',\''+proxSrv.proxima+'\')">Recordatorio</button>':'')+'</div></div>'+
-      '<hr class="div"><div class="actions">'+
-      '<button class="btn btn-gray btn-sm" onclick="editarCliente(\''+c.id+'\')">Editar</button>'+
-      '<button class="btn btn-red btn-sm" onclick="eliminarCliente(\''+c.id+'\')">Eliminar</button></div></div>';
-  }).join('');
+  // Agrupar por nombre base
+  var grupos={};
+  f.forEach(function(c){var key=c.nombre.trim().toLowerCase();grupos[key]=grupos[key]||{nombre:c.nombre,items:[]};grupos[key].items.push(c);});
+  var html='';
+  Object.values(grupos).sort(function(a,b){return a.nombre.localeCompare(b.nombre);}).forEach(function(g){
+    var tieneVarias=g.items.length>1;
+    if(tieneVarias)html+='<div class="card"><div class="card-title" style="margin-bottom:10px">'+g.nombre+' <span class="badge b-info">'+g.items.length+' sucursales</span></div>';
+    g.items.forEach(function(c){
+      var sv=DB.servicios.filter(function(s){return s.clienteId===c.id;}).length;
+      var ul=DB.servicios.filter(function(s){return s.clienteId===c.id;}).sort(function(a,b){return b.fecha.localeCompare(a.fecha);})[0];
+      var proxSrv=DB.servicios.filter(function(s){return s.clienteId===c.id&&s.proxima&&s.proxima>=hoy();}).sort(function(a,b){return a.proxima.localeCompare(b.proxima);})[0];
+      var ingresos=DB.servicios.filter(function(s){return s.clienteId===c.id;}).reduce(function(a,s){return a+(parseFloat(s.costo)||0);},0);
+      var inner='<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
+        '<div>'+
+        (tieneVarias?'<div class="iname" style="color:#1a5c9e">'+(c.sucursal||c.dir||'Local principal')+'</div>':'<div class="iname">'+c.nombre+'</div>')+
+        '<div class="isub">'+(c.tipo||'')+(c.tipo&&c.dir?' &bull; ':'')+( c.dir||'')+'</div>'+
+        '<div class="isub">'+c.tel+(c.freq?' &bull; '+c.freq:'')+'</div>'+
+        (c.email?'<div class="isub" style="color:#1a5c9e">'+c.email+'</div>':'')+
+        (c.obs?'<div class="isub" style="font-style:italic">'+c.obs+'</div>':'')+'</div>'+
+        '<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+
+        '<span style="font-size:12px;color:#888">'+sv+' servicio'+(sv!==1?'s':'')+'</span>'+
+        (ingresos>0?'<span style="font-size:12px;font-weight:700;color:#1a7a45">$'+ingresos.toFixed(2)+'</span>':'')+
+        (ul?'<span style="font-size:11px;color:#888">Ultimo: '+ul.fecha+'</span>':'')+
+        (proxSrv&&c.email?'<button class="btn btn-teal btn-sm" onclick="abrirModalCorreo(\''+c.id+'\',\''+proxSrv.proxima+'\')">Recordatorio</button>':'')+'</div></div>'+
+        '<hr class="div"><div class="actions">'+
+        '<button class="btn btn-blue btn-sm" onclick="verPerfilCliente(\''+c.id+'\')">Ver perfil</button>'+
+        '<button class="btn btn-gray btn-sm" onclick="editarCliente(\''+c.id+'\')">Editar</button>'+
+        '<button class="btn btn-red btn-sm" onclick="eliminarCliente(\''+c.id+'\')">Eliminar</button></div>';
+      html+=tieneVarias?'<div style="border:1px solid #edf0f3;border-radius:8px;padding:12px;margin-bottom:8px">'+inner+'</div>':'<div class="card">'+inner+'</div>';
+    });
+    if(tieneVarias)html+='</div>';
+  });
+  lista.innerHTML=html;
 }
-function editarCliente(id){var c=DB.clientes.find(function(x){return x.id===id;});if(!c)return;['nombre','tel','dir','email','obs'].forEach(function(f){document.getElementById('c-'+f).value=c[f]||'';});document.getElementById('c-tipo').value=c.tipo||'';document.getElementById('c-freq').value=c.freq||'';document.getElementById('titulo-form-c').textContent='Editar cliente';document.getElementById('c-nombre').dataset.eid=id;showTab('nuevo-cliente');}
+function verPerfilCliente(id){
+  var c=DB.clientes.find(function(x){return x.id===id;});if(!c)return;
+  var svs=DB.servicios.filter(function(s){return s.clienteId===id;}).sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
+  var totalIng=svs.reduce(function(a,s){return a+(parseFloat(s.costo)||0);},0);
+  var proxSrv=svs.filter(function(s){return s.proxima&&s.proxima>=hoy();}).sort(function(a,b){return a.proxima.localeCompare(b.proxima);})[0];
+  var html='<div class="card" style="border-left:4px solid #1a5c9e">'+
+    '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">'+
+    '<div><div style="font-size:18px;font-weight:700;color:#1a5c9e">'+c.nombre+(c.sucursal?' <span style="font-size:14px;font-weight:400;color:#666">— '+c.sucursal+'</span>':'')+'</div>'+
+    '<div class="isub">'+(c.tipo||'')+(c.tipo&&c.dir?' &bull; ':'')+( c.dir||'')+'</div>'+
+    '<div class="isub">Tel: '+c.tel+(c.freq?' &bull; '+c.freq:'')+'</div>'+
+    (c.email?'<div class="isub" style="color:#1a5c9e">'+c.email+'</div>':'')+
+    (c.obs?'<div class="isub" style="font-style:italic">'+c.obs+'</div>':'')+'</div>'+
+    '<div style="text-align:right"><div style="font-size:24px;font-weight:700;color:#1a7a45">$'+totalIng.toFixed(2)+'</div><div style="font-size:11px;color:#888">ingresos totales</div></div></div>'+
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:4px">'+
+    '<span class="badge b-info">'+svs.length+' servicios</span>'+
+    (proxSrv?'<span class="badge b-ok">Proxima visita: '+proxSrv.proxima+'</span>':'')+
+    '</div></div>';
+  html+='<div class="card"><div class="card-title">Historial de servicios</div>';
+  if(!svs.length){html+='<div class="empty">Sin servicios registrados</div>';}
+  else{
+    svs.forEach(function(s,i){
+      var bd=s.estado==='Completado'?'b-ok':s.estado==='Pendiente'?'b-warn':'b-info';
+      html+='<div class="row-item" style="flex-direction:column;align-items:flex-start">'+
+        '<div style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:6px">'+
+        '<div>'+
+        '<div class="iname">#'+(svs.length-i)+' &nbsp;'+s.fecha+(s.hora?' &bull; '+s.hora:'')+'</div>'+
+        '<div class="isub">'+(s.plaga||'')+(s.tipo?' &bull; '+s.tipo:'')+'</div>'+
+        '<div class="isub">Tecnico: '+(s.tecnico||'—')+' &bull; Producto: '+(s.producto||'—')+(s.cantidad?' &bull; '+s.cantidad+'ml':'')+'</div>'+
+        (s.areas?'<div class="isub">Areas: '+s.areas+'</div>':'')+
+        (s.recom?'<div class="isub">Recomendacion: '+s.recom+'</div>':'')+
+        (s.obs?'<div class="isub" style="font-style:italic">'+s.obs+'</div>':'')+
+        (s.incidente&&s.incidente!=='No'?'<div style="margin-top:4px"><span class="badge b-danger">Incidente: '+s.incidente+'</span></div>':'')+'</div>'+
+        '<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px">'+
+        '<span class="badge '+bd+'">'+s.estado+'</span>'+
+        (s.costo?'<span style="font-size:14px;font-weight:700;color:#1a5c9e">$'+parseFloat(s.costo).toFixed(2)+'</span>':'')+
+        (s.proxima?'<span style="font-size:11px;color:#888">Proxima: '+s.proxima+'</span>':'')+'</div></div></div>';
+    });
+  }
+  html+='</div>';
+  document.getElementById('perfil-cliente-contenido').innerHTML=html;
+  showTab('perfil-cliente');
+}
+function editarCliente(id){
+  var c=DB.clientes.find(function(x){return x.id===id;});if(!c)return;
+  ['nombre','tel','dir','email','obs'].forEach(function(f){document.getElementById('c-'+f).value=c[f]||'';});
+  document.getElementById('c-sucursal').value=c.sucursal||'';
+  document.getElementById('c-tipo').value=c.tipo||'';
+  document.getElementById('c-freq').value=c.freq||'';
+  document.getElementById('titulo-form-c').textContent='Editar cliente';
+  document.getElementById('c-nombre').dataset.eid=id;
+  showTab('nuevo-cliente');
+}
 function eliminarCliente(id){if(!confirm('Eliminar cliente y sus servicios?'))return;DB.clientes=DB.clientes.filter(function(c){return c.id!==id;});DB.servicios=DB.servicios.filter(function(s){return s.clienteId!==id;});guardar();renderClientes();}
 function guardarCliente(){
   var nombre=document.getElementById('c-nombre').value.trim(),tel=document.getElementById('c-tel').value.trim();
   if(!nombre||!tel){showMsg('msg-c','Complete nombre y telefono.','err');return;}
   var eid=document.getElementById('c-nombre').dataset.eid;
-  if(eid){var c=DB.clientes.find(function(x){return x.id===eid;});if(c){c.nombre=nombre;c.tel=tel;c.dir=document.getElementById('c-dir').value;c.tipo=document.getElementById('c-tipo').value;c.email=document.getElementById('c-email').value;c.freq=document.getElementById('c-freq').value;c.obs=document.getElementById('c-obs').value;}delete document.getElementById('c-nombre').dataset.eid;}
-  else{DB.clientes.push({id:'c'+Date.now(),nombre:nombre,tel:tel,dir:document.getElementById('c-dir').value,tipo:document.getElementById('c-tipo').value,email:document.getElementById('c-email').value,freq:document.getElementById('c-freq').value,obs:document.getElementById('c-obs').value});}
+  if(eid){
+    var c=DB.clientes.find(function(x){return x.id===eid;});
+    if(c){c.nombre=nombre;c.tel=tel;c.sucursal=document.getElementById('c-sucursal').value;c.dir=document.getElementById('c-dir').value;c.tipo=document.getElementById('c-tipo').value;c.email=document.getElementById('c-email').value;c.freq=document.getElementById('c-freq').value;c.obs=document.getElementById('c-obs').value;}
+    delete document.getElementById('c-nombre').dataset.eid;
+  } else {
+    DB.clientes.push({id:'c'+Date.now(),nombre:nombre,tel:tel,sucursal:document.getElementById('c-sucursal').value,dir:document.getElementById('c-dir').value,tipo:document.getElementById('c-tipo').value,email:document.getElementById('c-email').value,freq:document.getElementById('c-freq').value,obs:document.getElementById('c-obs').value});
+  }
   guardar();showMsg('msg-c','Cliente guardado.','ok');setTimeout(function(){limpiarCliente();showTab('clientes');},700);
 }
-function limpiarCliente(){['c-nombre','c-tel','c-dir','c-email','c-obs'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('c-tipo').value='';document.getElementById('c-freq').value='';delete document.getElementById('c-nombre').dataset.eid;}
+function limpiarCliente(){['c-nombre','c-sucursal','c-tel','c-dir','c-email','c-obs'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('c-tipo').value='';document.getElementById('c-freq').value='';delete document.getElementById('c-nombre').dataset.eid;}
 
 // ===== SERVICIO =====
+var tecnicosServicio=[];
+function limpiarTecnicosServicio(){tecnicosServicio=[];renderTecnicosServicio();}
+function agregarTecnicoServicio(){
+  var sel=document.getElementById('s-tecnico');var val=sel.value.trim();
+  if(!val)return;
+  if(tecnicosServicio.indexOf(val)===-1){tecnicosServicio.push(val);}
+  renderTecnicosServicio();
+  sel.value='';
+}
+function quitarTecnicoServicio(nombre){
+  tecnicosServicio=tecnicosServicio.filter(function(t){return t!==nombre;});
+  renderTecnicosServicio();
+}
+function renderTecnicosServicio(){
+  var d=document.getElementById('tecnicos-seleccionados');
+  d.innerHTML=tecnicosServicio.map(function(t){return'<span class="badge b-info" style="cursor:pointer;padding:4px 10px" onclick="quitarTecnicoServicio(\''+t.replace(/'/g,"\\'")+'\')" title="Clic para quitar">'+t+' &times;</span>';}).join('');
+}
 function guardarServicio(){
   var fecha=document.getElementById('s-fecha').value,cid=document.getElementById('s-cliente').value,plaga=document.getElementById('s-plaga').value;
   if(!fecha||!cid||!plaga){showMsg('msg-s','Complete fecha, cliente y plaga.','err');return;}
-  var srv={id:'s'+Date.now(),fecha:fecha,hora:document.getElementById('s-hora').value,clienteId:cid,tecnico:document.getElementById('s-tecnico').value,plaga:plaga,tipo:document.getElementById('s-tipo').value,producto:document.getElementById('s-producto').value,cantidad:document.getElementById('s-cantidad').value,areas:document.getElementById('s-areas').value,metodo:document.getElementById('s-metodo').value,epp:document.getElementById('s-epp').value,estado:document.getElementById('s-estado').value,recom:document.getElementById('s-recom').value,proxima:document.getElementById('s-proxima').value,costo:document.getElementById('s-costo').value,obs:document.getElementById('s-obs').value,incidente:document.getElementById('s-incidente').value,hojaVisita:archivos.srv?archivos.srv.name:null};
+  // Agregar tecnico del select si hay uno seleccionado y no fue agregado
+  var selTec=document.getElementById('s-tecnico').value.trim();
+  if(selTec&&tecnicosServicio.indexOf(selTec)===-1)tecnicosServicio.push(selTec);
+  var srv={id:'s'+Date.now(),fecha:fecha,hora:document.getElementById('s-hora').value,clienteId:cid,tecnico:tecnicosServicio.join(', '),tecnicos:tecnicosServicio.slice(),plaga:plaga,tipo:document.getElementById('s-tipo').value,producto:document.getElementById('s-producto').value,cantidad:document.getElementById('s-cantidad').value,areas:document.getElementById('s-areas').value,metodo:document.getElementById('s-metodo').value,epp:document.getElementById('s-epp').value,estado:document.getElementById('s-estado').value,recom:document.getElementById('s-recom').value,proxima:document.getElementById('s-proxima').value,costo:document.getElementById('s-costo').value,obs:document.getElementById('s-obs').value,incidente:document.getElementById('s-incidente').value,hojaVisita:archivos.srv?archivos.srv.name:null};
   DB.servicios.push(srv);
   guardar();
-  // Si hay proxima y cliente tiene correo, ofrecer recordatorio
   var c=cli(cid);
-  if(srv.proxima&&c&&c.email){
-    showMsg('msg-s','Servicio guardado. El cliente tiene correo registrado — puede enviar recordatorio desde el Panel.','ok');
-  } else {
-    showMsg('msg-s','Servicio guardado correctamente.','ok');
-  }
+  if(srv.proxima&&c&&c.email){showMsg('msg-s','Servicio guardado. El cliente tiene correo registrado — puede enviar recordatorio desde el Panel.','ok');}
+  else{showMsg('msg-s','Servicio guardado correctamente.','ok');}
+  tecnicosServicio=[];renderTecnicosServicio();
   archivos.srv=null;
   document.getElementById('preview-srv').innerHTML='';
   document.getElementById('zone-srv').classList.remove('has-file');
